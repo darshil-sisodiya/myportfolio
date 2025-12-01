@@ -54,6 +54,10 @@ async def serve_index():
     return FileResponse("index.html")
 # -------------------------------------
 
+@app.get("/resume")
+async def serve_resume():
+    return FileResponse("darshil_s_resumee.pdf", media_type="application/pdf")
+
 
 async def fetch_leetcode(query: str, variables: Dict[str, Any]) -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
