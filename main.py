@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import httpx
@@ -15,6 +17,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/images", StaticFiles(directory="images"), name="images")
 
 LEETCODE_USERNAME = "user6432"
 LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql"
