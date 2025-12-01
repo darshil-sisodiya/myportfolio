@@ -31,6 +31,12 @@
       padding: 0;
     }
 
+    /* Prevent horizontal scroll across devices */
+    html, body { overflow-x: hidden; width: 100%; }
+    img, svg, video { max-width: 100%; height: auto; display: block; }
+    .projects-grid, .control-grid, .project-card, .card { min-width: 0; }
+    .project-title, .project-desc, .modal-description, .modal-link { overflow-wrap: anywhere; }
+
     body {
       font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
         Consolas, "Liberation Mono", "Courier New", monospace;
@@ -248,7 +254,7 @@
     .hamburger span {
       width: 24px;
       height: 2px;
-      background: var(--text);
+      background: #ffffff; /* ensure white hamburger lines */
       border-radius: 2px;
       transition: all 0.3s ease;
     }
@@ -270,7 +276,7 @@
       top: 0;
       right: -100%;
       width: 280px;
-      height: 100vh;
+      height: 100dvh; /* better on mobile browsers */
       background: rgba(10, 13, 31, 0.98);
       backdrop-filter: blur(20px);
       border-left: 1px solid var(--border);
@@ -278,6 +284,7 @@
       transition: right 0.3s ease;
       z-index: 1000;
       overflow-y: auto;
+      overscroll-behavior: contain;
     }
 
     .mobile-menu.active {
@@ -818,17 +825,16 @@
     }
 
     /* Control center */
-    .control-header {
-      margin-top: 46px;
-      margin-bottom: 12px;
-    }
-
     .control-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       width: 100%;
+      grid-auto-flow: dense;
+      align-items: stretch;
     }
+
+    .control-grid .card { height: 100%; }
 
     .card {
       background: var(--bg-soft-2);
@@ -839,6 +845,13 @@
       color: var(--muted);
       box-shadow: 0 18px 38px rgba(0, 0, 0, 0.52);
     }
+
+    /* Experience timeline compact formatting */
+    #experienceCard .list li { display: block; padding: 6px 0; }
+    #experienceCard .tl-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+    #experienceCard .tl-role { color: var(--fg); font-size: 0.9rem; }
+    #experienceCard .tl-date { color: var(--muted); font-size: 0.78rem; white-space: nowrap; }
+    #experienceCard .tl-desc { margin-top: 6px; color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
 
     .card h3 {
       font-size: 0.9rem;
@@ -1019,10 +1032,8 @@
     /* Project Modal */
     .project-modal {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
+      height: 100dvh; /* use dynamic viewport height for mobile */
       background: rgba(5, 7, 19, 0.97);
       backdrop-filter: blur(12px);
       z-index: 10000;
@@ -1032,6 +1043,7 @@
       padding: 40px 20px;
       opacity: 0;
       animation: fadeIn 0.3s ease forwards;
+      overscroll-behavior: contain; /* prevent background scroll on small screens */
     }
 
     .project-modal.active {
@@ -1044,8 +1056,10 @@
       border-radius: 20px;
       max-width: 900px;
       width: 100%;
-      max-height: 85vh;
+      max-height: 90dvh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
       animation: slideUp 0.4s cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
       position: relative;
@@ -1055,6 +1069,12 @@
 
     .modal-content::-webkit-scrollbar {
       display: none;
+    }
+    /* Lock body when menus/modals open */
+    body.menu-open,
+    body.modal-open {
+      overflow: hidden;
+      touch-action: none;
     }
 
     @keyframes slideUp {
@@ -1072,12 +1092,14 @@
       padding: 20px 28px 24px;
       border-bottom: 1px solid var(--border);
       position: sticky;
-      top: 0;
+      top: env(safe-area-inset-top, 0px);
       background: var(--bg-soft);
-      z-index: 10;
+      z-index: 100; /* keep controls visible while scrolling */
       display: flex;
       flex-direction: column;
       gap: 16px;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
     }
 
     .modal-header-left {
@@ -1335,6 +1357,10 @@
       .hero {
         grid-template-columns: minmax(0, 1fr);
       }
+      /* So modal fits without horizontal scroll and header remains accessible */
+      .project-modal { padding: 12px; }
+      .modal-content { max-height: 94dvh; border-radius: 12px; }
+      .modal-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
       .hero-aside {
         order: 1;
         max-width: 100%;
@@ -1722,8 +1748,8 @@
     /* Scoped readability improvements for Certificates card */
     #certificatesCard .list { font-size: 0.82rem; }
     #certificatesCard .list .label { font-size: 0.86rem; line-height: 1.35; }
-    #certificatesCard .list .meta { font-size: 0.78rem; }
-    #certificatesCard .list .date { font-size: 0.78rem; }
+    #certificatesCard .list .meta { font-size: 0.86rem; }
+    #certificatesCard .list .date { font-size: 0.86rem; }
     /* Slightly larger tech stack icon labels */
     .tech-stack-label { font-size: 0.74rem !important; }
   </style>
@@ -2254,21 +2280,29 @@
           </div>
         </div>
 
-        <!-- Now card -->
-        <div class="card">
+        <!-- Experience timeline card -->
+        <div class="card" id="experienceCard">
           <h3>
             <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="8"></circle>
-              <path d="M12 8v4l2 2"></path>
+              <path d="M4 4h16v4H4z"></path>
+              <path d="M6 12h12"></path>
+              <path d="M6 16h8"></path>
             </svg>
-            <span>Now</span>
-            <span class="sub">what I'm doing</span>
+            <span>Experience</span>
+            <span class="sub">timeline</span>
           </h3>
-          <ul class="now-list">
-            <li>learning Django and its modules</li>
-            <li>learning analytics / embeddings / vector search</li>
-            <li>documenting DSA patterns from LeetCode</li>
-            <li>looking for 2025 internships</li>
+          <ul class="list">
+            <li>
+              <div class="tl-top">
+                <span class="tl-role">Python Intern @ Corediva</span>
+                <span class="tl-date">Aug 2025 – Oct 2025</span>
+              </div>
+              <br>
+              <div class="tl-desc">
+                Multi‑provider email via IMAP/SMTP; JWT‑secured REST APIs (bcrypt, MySQL);
+                real‑time messaging with Socket.IO, Flask‑SQLAlchemy, blueprints, uploads.
+              </div>
+            </li>
           </ul>
         </div>
 
@@ -2412,7 +2446,9 @@
       hamburger.classList.toggle('active');
       mobileMenu.classList.toggle('active');
       mobileMenuOverlay.classList.toggle('active');
-      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+      const menuActive = mobileMenu.classList.contains('active');
+      document.body.style.overflow = menuActive ? 'hidden' : 'auto';
+      document.body.classList.toggle('menu-open', menuActive);
     }
 
     hamburger.addEventListener('click', toggleMenu);
@@ -2849,6 +2885,9 @@
         // Show modal
         projectModal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
+        const modalContentEl = projectModal.querySelector('.modal-content');
+        if (modalContentEl) modalContentEl.scrollTop = 0;
       });
     });
 
@@ -2856,6 +2895,7 @@
     function closeModal() {
       projectModal.classList.remove('active');
       document.body.style.overflow = 'auto';
+      document.body.classList.remove('modal-open');
     }
 
     closeModalBtn.addEventListener('click', closeModal);
