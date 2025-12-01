@@ -677,6 +677,15 @@
       justify-content: center;
     }
 
+    /* Subtle text color accents using existing palette */
+    .section-title > span:last-child {
+      color: var(--accent);
+    }
+
+    .card h3 > span:not(.sub) {
+      color: var(--accent);
+    }
+
     /* Projects */
     .projects-header {
       display: flex;
@@ -1259,6 +1268,36 @@
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+    }
+
+    /* Modal Gallery */
+    .modal-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .modal-gallery-item {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--bg-soft-2);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      aspect-ratio: 16/9;
+    }
+    .modal-gallery-item img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      object-position: center;
+    }
+    .modal-gallery-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
     }
 
     .modal-link {
@@ -2629,6 +2668,12 @@
         date: '2025',
         team: 'Team',
         description: 'Smart health assistant that simplifies prescriptions, tracks routines, and provides personalized reports and instant AI-powered guidance.',
+        images: [
+          'images/huro-1.jpg',
+          'images/hruo-2.jpg',
+          'images/huro-3.jpg',
+          'images/huro-4.jpg',
+        ],
         features: [
           'OCR Prescription Analysis - Upload prescription images and extract text with Gemini Vision AI, get detailed medication insights on dosage, frequency, timing, and side effects',
           'Health Profile Management - Track sleep patterns, hydration levels, stress, exercise routines, and dietary habits with timeline logging',
@@ -2746,7 +2791,25 @@
               ${project.techStack.map(tech => `<span class="modal-tech-item">${tech}</span>`).join('')}
             </div>
           </div>
+        `;
 
+        // Optional gallery (shown just above links)
+        if (project.images && project.images.length) {
+          bodyHTML += `
+            <div class="modal-section">
+              <h3 class="modal-section-title">Gallery</h3>
+              <div class="modal-gallery-grid">
+                ${project.images.map(src => `
+                  <a href="${src}" target="_blank" rel="noreferrer" class="modal-gallery-item">
+                    <img src="${src}" alt="${project.title} screenshot" loading="lazy" />
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        bodyHTML += `
           <div class="modal-section">
             <h3 class="modal-section-title">Links</h3>
             <div class="modal-links">
